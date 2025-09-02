@@ -1,65 +1,57 @@
-import DashboardHeader from "@/components/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
-export default async function DashboardPage() {
+const HomePage = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (session) return redirect("/dashboard");
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* Full-page background with logo watermark */}
-      <div className="fixed inset-0 -z-10">
-        <img
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 p-8 text-gray-800">
+      <div className="flex flex-col items-center space-y-8 text-center">
+        {/* Logo at the top */}
+        <Image
           src="/dashen logo.png"
-          alt="Background"
-          className="w-full h-full object-cover opacity-10"
+          alt="Dashen Bank Logo"
+          width={120}
+          height={120}
+          className="rounded-xl shadow-lg transition-transform duration-300 hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-blue-700 mix-blend-multiply"></div>
+
+        {/* Title and description */}
+        <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl text-gray-900">
+         Temporary Core Banking System
+        </h1>
+        <p className="max-w-prose text-lg text-gray-600 md:text-xl">
+          Welcome to the new system. Your gateway to efficient Banking management.
+        </p>
+
+        {/* The prominent "Get Started" button in the middle */}
+        <div className="mt-8">
+          <Link href="/sign-in">
+            <Button
+              className="group relative inline-flex h-16 items-center justify-center overflow-hidden rounded-[50px] bg-gradient-to-r from-blue-700 to-indigo-800 px-10 text-lg font-bold text-white shadow-lg transition-all duration-500 hover:scale-110 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300"
+              size="lg"
+            >
+              <span className="relative z-10 transition-transform duration-500 group-hover:-translate-y-1">
+                Get Started
+              </span>
+              <span className="absolute inset-0 z-0 bg-gradient-to-l from-indigo-800 to-blue-700 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></span>
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <DashboardHeader/>
-
-      <div className="container mx-auto flex flex-col items-center justify-center min-h-[calc(100vh-180px)] p-4">
-        {/* Glass card container */}
-        <div className="w-full max-w-4xl bg-white/5 backdrop-blur-sm border-white/20 rounded-xl p-8 shadow-xl">
-          {/* Centered register button */}
-          <div className="flex flex-col items-center justify-center space-y-8">
-            <h2 className="text-3xl font-bold text-white text-center mb-4">
-              Customer Management Dashboard
-            </h2>
-            
-            <Link href="/register" className="w-full max-w-xs">
-              <Button 
-                className="w-full bg-white text-blue-900 hover:bg-blue-100 px-8 py-6 text-xl font-bold transition-all transform hover:scale-105"
-              >
-                Register New Customer
-              </Button>
-            </Link>
-               <Link href="/company" className="w-full max-w-xs">
-              <Button 
-                className="w-full bg-white text-blue-900 hover:bg-blue-100 px-8 py-6 text-xl font-bold transition-all transform hover:scale-105"
-              >
-                Register New Company
-              </Button>
-            </Link>
-                  <Link href="/manage" className="w-full max-w-xs">
-              <Button 
-                className="w-full bg-white text-blue-900 hover:bg-blue-100 px-8 py-6 text-xl font-bold transition-all transform hover:scale-105"
-              >
-                See Registered Customers
-              </Button>
-            </Link>
-                 <Link href="/companymanage" className="w-full max-w-xs">
-              <Button 
-                className="w-full bg-white text-blue-900 hover:bg-blue-100 px-8 py-6 text-xl font-bold transition-all transform hover:scale-105"
-              >
-                See Registered Companies
-              </Button>
-            </Link>
-            
-
-         
-          </div>
-        </div>
+      {/* Subtle footer text */}
+      <div className="mt-12 text-sm text-gray-500">
+        <p>Your journey to streamlined credit management starts here.</p>
       </div>
     </div>
   );
-}
+};
+
+export default HomePage;
