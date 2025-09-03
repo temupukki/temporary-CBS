@@ -2,8 +2,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -98,32 +96,29 @@ const YearNavigation = ({
   );
 };
 
-// Zod validation schema
-const formSchema = z.object({
-  customerNumber: z.string().min(10, "Customer number is required"),
-  tinNumber: z.string().optional(),
-  firstName: z.string().min(1, "First name is required"),
-  middleName: z.string().optional(),
-  lastName: z.string().min(1, "Last name is required"),
-  mothersName: z.string().min(1, "Mother's name is required"),
-  gender: z.string().min(1, "Gender is required"),
-  maritalStatus: z.string().min(1, "Marital status is required"),
-  dateOfBirth: z.date().refine((date) => date <= subYears(new Date(), 18), "Must be at least 18 years old"),
-  nationalId: z.string().min(12).max(12).regex(/^\d+$/, "Must contain exactly 12 digits"),
-  phone: z.string().min(10).max(13).regex(/^\+?\d+$/, "Must be a valid phone number"),
-  email: z.string().email("Invalid email address").optional().or(z.literal("")),
-  region: z.string().min(1, "Region is required"),
-  zone: z.string().min(1, "Zone is required"),
-  city: z.string().min(1, "City is required"),
-  subcity: z.string().min(1, "Subcity is required"),
-  woreda: z.string().min(1, "Woreda is required"),
-  monthlyIncome: z.coerce.number().min(100, "Monthly income must be at least 100"),
-  nationalidUrl: z.string().optional(),
-  agreementFormUrl: z.string().optional(),
-  accountType: z.string().min(1, "Account type is required"), 
-});
-
-type FormData = z.infer<typeof formSchema>;
+interface FormData {
+  customerNumber: string;
+  tinNumber?: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  mothersName: string;
+  gender: string;
+  maritalStatus: string;
+  dateOfBirth: Date | null;
+  nationalId: string;
+  phone: string;
+  email?: string;
+  region: string;
+  zone: string;
+  city: string;
+  subcity: string;
+  woreda: string;
+  monthlyIncome: number | string;
+  nationalidUrl?: string;
+  agreementFormUrl?: string;
+  accountType: string;
+}
 
 interface FileUploadProps {
   file: File | null;
@@ -179,10 +174,11 @@ const FileUpload: React.FC<FileUploadProps> = ({ file, onFileChange, onRemoveFil
 
 export default function AddBankCustomerPage() {
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors }, setValue, watch, control } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const { register, handleSubmit, setValue, control } = useForm<FormData>({
     defaultValues: {
       email: "",
+      monthlyIncome: "",
+      dateOfBirth: null
     }
   });
 
@@ -191,6 +187,7 @@ export default function AddBankCustomerPage() {
   const [calendarMonth, setCalendarMonth] = useState<Date>(subYears(new Date(), 30));
   const [nationalidFile, setNationalidFile] = useState<File | null>(null);
   const [agreementFormFile, setAgreementFormFile] = useState<File | null>(null);
+  const [formErrors, setFormErrors] = useState<Partial<Record<keyof FormData, string>>>({});
 
   // Calculate the maximum date (18 years ago)
   const maxDate = subYears(new Date(), 18);
@@ -270,7 +267,41 @@ export default function AddBankCustomerPage() {
     setCalendarMonth(date);
   };
 
+  const validateForm = (data: FormData): Partial<Record<keyof FormData, string>> => {
+    const errors: Partial<Record<keyof FormData, string>> = {};
+
+    if (!data.firstName) errors.firstName = "First name is required";
+    if (!data.lastName) errors.lastName = "Last name is required";
+    if (!data.mothersName) errors.mothersName = "Mother's name is required";
+    if (!data.gender) errors.gender = "Gender is required";
+    if (!data.maritalStatus) errors.maritalStatus = "Marital status is required";
+    if (!data.dateOfBirth) errors.dateOfBirth = "Date of birth is required";
+    if (!data.nationalId) errors.nationalId = "National ID is required";
+    if (data.nationalId && (!/^\d{12}$/.test(data.nationalId))) errors.nationalId = "Must contain exactly 12 digits";
+    if (!data.phone) errors.phone = "Phone number is required";
+    if (data.phone && (!/^\+?\d+$/.test(data.phone) || data.phone.length < 10 || data.phone.length > 13)) errors.phone = "Must be a valid phone number";
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errors.email = "Invalid email address";
+    if (!data.region) errors.region = "Region is required";
+    if (!data.zone) errors.zone = "Zone is required";
+    if (!data.city) errors.city = "City is required";
+    if (!data.subcity) errors.subcity = "Subcity is required";
+    if (!data.woreda) errors.woreda = "Woreda is required";
+    if (!data.monthlyIncome) errors.monthlyIncome = "Monthly income is required";
+    if (data.monthlyIncome && (Number(data.monthlyIncome) < 100)) errors.monthlyIncome = "Monthly income must be at least 100";
+    if (!data.accountType) errors.accountType = "Account type is required";
+
+    return errors;
+  };
+
   const onSubmit = async (data: FormData) => {
+    const errors = validateForm(data);
+    
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      toast.error("Please fix the form errors");
+      return;
+    }
+
     if (!nationalidFile) {
       toast.error("National ID document is required");
       return;
@@ -282,6 +313,7 @@ export default function AddBankCustomerPage() {
     }
 
     setIsSubmitting(true);
+    setFormErrors({});
 
     try {
       const [nationlidUrl, agreementFormUrl] = await Promise.all([
@@ -293,7 +325,7 @@ export default function AddBankCustomerPage() {
         throw new Error("Failed to upload files");
       }
 
-      const formattedDateOfBirth = format(data.dateOfBirth, 'yyyy-MM-dd');
+      const formattedDateOfBirth = data.dateOfBirth ? format(data.dateOfBirth, 'yyyy-MM-dd') : '';
 
       const response = await fetch("/api/customers", {
         method: "POST",
@@ -302,7 +334,8 @@ export default function AddBankCustomerPage() {
           ...data,
           dateOfBirth: formattedDateOfBirth,
           nationlidUrl,
-          agreementFormUrl
+          agreementFormUrl,
+          monthlyIncome: Number(data.monthlyIncome)
         }),
       });
 
@@ -312,7 +345,7 @@ export default function AddBankCustomerPage() {
       }
 
       toast.success("Customer created successfully!");
-       router.refresh();
+      router.push("/dashboard");
     } catch (error) {
       console.error(error);
       toast.error(error instanceof Error ? error.message : "Failed to create customer");
@@ -368,7 +401,7 @@ export default function AddBankCustomerPage() {
                   <div className="space-y-2">
                     <Label className="text-gray-700">First Name*</Label>
                     <Input {...register("firstName")} placeholder="First Name" className="border-gray-300"/>
-                    {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName.message}</p>}
+                    {formErrors.firstName && <p className="text-red-500 text-xs">{formErrors.firstName}</p>}
                   </div>
 
                   {/* Middle Name */}
@@ -381,14 +414,14 @@ export default function AddBankCustomerPage() {
                   <div className="space-y-2">
                     <Label className="text-gray-700">Last Name*</Label>
                     <Input {...register("lastName")} placeholder="Last Name" className="border-gray-300"/>
-                    {errors.lastName && <p className="text-red-500 text-xs">{errors.lastName.message}</p>}
+                    {formErrors.lastName && <p className="text-red-500 text-xs">{formErrors.lastName}</p>}
                   </div>
 
                   {/* Mother's Name */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Mother's Name*</Label>
                     <Input {...register("mothersName")} placeholder="Mother's Name" className="border-gray-300"/>
-                    {errors.mothersName && <p className="text-red-500 text-xs">{errors.mothersName.message}</p>}
+                    {formErrors.mothersName && <p className="text-red-500 text-xs">{formErrors.mothersName}</p>}
                   </div>
 
                   {/* Gender */}
@@ -410,7 +443,7 @@ export default function AddBankCustomerPage() {
                         </Select>
                       )}
                     />
-                    {errors.gender && <p className="text-red-500 text-xs">{errors.gender.message}</p>}
+                    {formErrors.gender && <p className="text-red-500 text-xs">{formErrors.gender}</p>}
                   </div>
 
                   {/* Marital Status */}
@@ -434,7 +467,7 @@ export default function AddBankCustomerPage() {
                         </Select>
                       )}
                     />
-                    {errors.maritalStatus && <p className="text-red-500 text-xs">{errors.maritalStatus.message}</p>}
+                    {formErrors.maritalStatus && <p className="text-red-500 text-xs">{formErrors.maritalStatus}</p>}
                   </div>
 
                   {/* Date of Birth */}
@@ -454,7 +487,7 @@ export default function AddBankCustomerPage() {
                           <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
                               mode="single"
-                              selected={field.value}
+                              selected={field.value || undefined}
                               onSelect={field.onChange}
                               month={calendarMonth}
                               onMonthChange={setCalendarMonth}
@@ -472,14 +505,14 @@ export default function AddBankCustomerPage() {
                         </Popover>
                       )}
                     />
-                    {errors.dateOfBirth && <p className="text-red-500 text-xs">{errors.dateOfBirth.message}</p>}
+                    {formErrors.dateOfBirth && <p className="text-red-500 text-xs">{formErrors.dateOfBirth}</p>}
                   </div>
 
                   {/* National ID */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">National ID*</Label>
                     <Input {...register("nationalId")} placeholder="National ID (12 digits)" className="border-gray-300"/>
-                    {errors.nationalId && <p className="text-red-500 text-xs">{errors.nationalId.message}</p>}
+                    {formErrors.nationalId && <p className="text-red-500 text-xs">{formErrors.nationalId}</p>}
                   </div>
                 </div>
               </div>
@@ -496,14 +529,14 @@ export default function AddBankCustomerPage() {
                   <div className="space-y-2">
                     <Label className="text-gray-700">Phone Number*</Label>
                     <Input {...register("phone")} placeholder="Phone Number" className="border-gray-300"/>
-                    {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
+                    {formErrors.phone && <p className="text-red-500 text-xs">{formErrors.phone}</p>}
                   </div>
 
                   {/* Email */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Email</Label>
                     <Input {...register("email")} type="email" placeholder="Email" className="border-gray-300"/>
-                    {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
+                    {formErrors.email && <p className="text-red-500 text-xs">{formErrors.email}</p>}
                   </div>
                 </div>
               </div>
@@ -520,42 +553,42 @@ export default function AddBankCustomerPage() {
                   <div className="space-y-2">
                     <Label className="text-gray-700">Region*</Label>
                     <Input {...register("region")} placeholder="Region" className="border-gray-300"/>
-                    {errors.region && <p className="text-red-500 text-xs">{errors.region.message}</p>}
+                    {formErrors.region && <p className="text-red-500 text-xs">{formErrors.region}</p>}
                   </div>
 
                   {/* Zone */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Zone*</Label>
                     <Input {...register("zone")} placeholder="Zone" className="border-gray-300"/>
-                    {errors.zone && <p className="text-red-500 text-xs">{errors.zone.message}</p>}
+                    {formErrors.zone && <p className="text-red-500 text-xs">{formErrors.zone}</p>}
                   </div>
 
                   {/* City */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">City*</Label>
                     <Input {...register("city")} placeholder="City" className="border-gray-300"/>
-                    {errors.city && <p className="text-red-500 text-xs">{errors.city.message}</p>}
+                    {formErrors.city && <p className="text-red-500 text-xs">{formErrors.city}</p>}
                   </div>
 
                   {/* Subcity */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Subcity*</Label>
                     <Input {...register("subcity")} placeholder="Subcity" className="border-gray-300"/>
-                    {errors.subcity && <p className="text-red-500 text-xs">{errors.subcity.message}</p>}
+                    {formErrors.subcity && <p className="text-red-500 text-xs">{formErrors.subcity}</p>}
                   </div>
 
                   {/* Woreda */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Woreda*</Label>
                     <Input {...register("woreda")} placeholder="Woreda" className="border-gray-300"/>
-                    {errors.woreda && <p className="text-red-500 text-xs">{errors.woreda.message}</p>}
+                    {formErrors.woreda && <p className="text-red-500 text-xs">{formErrors.woreda}</p>}
                   </div>
 
                   {/* Monthly Income */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Monthly Income*</Label>
-                    <Input {...register("monthlyIncome", { valueAsNumber: true })} type="number" placeholder="Monthly Income" className="border-gray-300"/>
-                    {errors.monthlyIncome && <p className="text-red-500 text-xs">{errors.monthlyIncome.message}</p>}
+                    <Input {...register("monthlyIncome")} type="number" placeholder="Monthly Income" className="border-gray-300"/>
+                    {formErrors.monthlyIncome && <p className="text-red-500 text-xs">{formErrors.monthlyIncome}</p>}
                   </div>
                 </div>
               </div>
@@ -574,7 +607,6 @@ export default function AddBankCustomerPage() {
                       onRemoveFile={() => handleRemoveFile('nationalid')}
                       label="Upload National ID Document"
                       id="nationalid-upload"
-                      error={errors.nationalidUrl?.message}
                     />
                   </div>
 
@@ -587,7 +619,6 @@ export default function AddBankCustomerPage() {
                       onRemoveFile={() => handleRemoveFile('agreement')}
                       label="Upload Agreement Form"
                       id="agreement-upload"
-                      error={errors.agreementFormUrl?.message}
                     />
                   </div>
                 </div>
@@ -613,7 +644,7 @@ export default function AddBankCustomerPage() {
                     </Select>
                   )}
                 />
-                {errors.accountType && <p className="text-red-500 text-xs">{errors.accountType.message}</p>}
+                {formErrors.accountType && <p className="text-red-500 text-xs">{formErrors.accountType}</p>}
               </div>
 
               {/* Submit Buttons */}
