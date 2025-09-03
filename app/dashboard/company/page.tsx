@@ -2,8 +2,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -98,32 +96,8 @@ const YearNavigation = ({
   );
 };
 
-// Zod validation schema for company account
-const formSchema = z.object({
-  customerNumber: z.string().min(10, "Customer number is required"),
-  tinNumber: z.string().min(1, "TIN number is required"),
-  companyName: z.string().min(1, "Company name is required"),
-  businessType: z.string().min(1, "Business type is required"),
-  registrationNumber: z.string().min(1, "Registration number is required"),
-  registrationDate: z.date(),
-  numberOfEmployees: z.coerce.number().min(1, "Number of employees is required"),
-  contactPersonName: z.string().min(1, "Contact person name is required"),
-  contactPersonPosition: z.string().min(1, "Contact person position is required"),
-  phone: z.string().min(10).max(13).regex(/^\+?\d+$/, "Must be a valid phone number"),
-  email: z.string().email("Invalid email address"),
-  region: z.string().min(1, "Region is required"),
-  zone: z.string().min(1, "Zone is required"),
-  city: z.string().min(1, "City is required"),
-  subcity: z.string().min(1, "Subcity is required"),
-  woreda: z.string().min(1, "Woreda is required"),
-  annualRevenue: z.coerce.number().min(1000, "Annual revenue must be at least 1000"),
-  businessLicenseUrl: z.string().optional(),
-  agreementFormUrl: z.string().optional(),
-  accountType: z.string().min(1, "Account type is required"), 
-});
-
-type FormData = z.infer<typeof formSchema>;
-
+// No Zod validation schema
+// No FormData type
 interface FileUploadProps {
   file: File | null;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -178,15 +152,37 @@ const FileUpload: React.FC<FileUploadProps> = ({ file, onFileChange, onRemoveFil
 
 export default function AddCompanyCustomerPage() {
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors }, setValue, watch, control } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  // Removed zodResolver from useForm, so no type-safety
+  const { register, handleSubmit, formState: { errors }, setValue, watch, control } = useForm<any>({
+    defaultValues: {
+      customerNumber: "",
+      tinNumber: "",
+      companyName: "",
+      businessType: "",
+      registrationNumber: "",
+      registrationDate: new Date(),
+      numberOfEmployees: 0,
+      contactPersonName: "",
+      contactPersonPosition: "",
+      phone: "",
+      email: "",
+      region: "",
+      zone: "",
+      city: "",
+      subcity: "",
+      woreda: "",
+      annualRevenue: 0,
+      businessLicenseUrl: "",
+      agreementFormUrl: "",
+      accountType: "",
+    },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customerNumber, setCustomerNumber] = useState("");
   const [calendarMonth, setCalendarMonth] = useState<Date>(subYears(new Date(), 5));
   const [businessLicenseFile, setBusinessLicenseFile] = useState<File | null>(null);
-  const [agreementFormFile, setagreementFormFile] = useState<File | null>(null);
+  const [agreementFormFile, setAgreementFormFile] = useState<File | null>(null);
 
   // Calculate the maximum date (current date)
   const maxDate = new Date();
@@ -247,7 +243,7 @@ export default function AddCompanyCustomerPage() {
       if (type === 'business-license') {
         setBusinessLicenseFile(file);
       } else {
-        setagreementFormFile(file);
+        setAgreementFormFile(file);
       }
     }
   };
@@ -255,10 +251,8 @@ export default function AddCompanyCustomerPage() {
   const handleRemoveFile = (type: 'business-license' | 'agreementForm') => {
     if (type === 'business-license') {
       setBusinessLicenseFile(null);
-      setValue('businessLicenseUrl', '');
     } else {
-      setagreementFormFile(null);
-      setValue('agreementFormUrl', '');
+      setAgreementFormFile(null);
     }
   };
 
@@ -266,16 +260,23 @@ export default function AddCompanyCustomerPage() {
     setCalendarMonth(date);
   };
 
-  const onSubmit = async (data: FormData) => {
-    if (!businessLicenseFile) {
-      toast.error("Business license document is required");
+  const onSubmit = async (data: any) => {
+    // Manually check for required fields, since we removed the resolver
+    if (!data.tinNumber || !data.companyName || !data.businessType || !data.registrationNumber || !data.registrationDate || !data.numberOfEmployees || !data.contactPersonName || !data.contactPersonPosition || !data.phone || !data.email || !data.region || !data.zone || !data.city || !data.subcity || !data.woreda || !data.annualRevenue || !data.accountType) {
+      toast.error("Please fill in all required fields.");
+      setIsSubmitting(false);
       return;
     }
 
-    if (!agreementFormFile) {
-      toast.error("agreementForm of association is required");
-      return;
-    }
+    if (!businessLicenseFile) {
+        toast.error("Business license document is required");
+        return;
+      }
+  
+      if (!agreementFormFile) {
+        toast.error("Agreement form is required");
+        return;
+      }
 
     setIsSubmitting(true);
 
@@ -358,14 +359,13 @@ export default function AddCompanyCustomerPage() {
                   <div className="space-y-2">
                     <Label className="text-gray-700">TIN Number*</Label>
                     <Input {...register("tinNumber")} placeholder="TIN Number" className="border-gray-300"/>
-                    {errors.tinNumber && <p className="text-red-500 text-xs">{errors.tinNumber.message}</p>}
+                    {/* `errors.tinNumber` will not be populated by Zod anymore */}
                   </div>
 
                   {/* Company Name */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Company Name*</Label>
                     <Input {...register("companyName")} placeholder="Company Name" className="border-gray-300"/>
-                    {errors.companyName && <p className="text-red-500 text-xs">{errors.companyName.message}</p>}
                   </div>
 
                   {/* Business Type */}
@@ -390,14 +390,12 @@ export default function AddCompanyCustomerPage() {
                         </Select>
                       )}
                     />
-                    {errors.businessType && <p className="text-red-500 text-xs">{errors.businessType.message}</p>}
                   </div>
 
                   {/* Registration Number */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Registration Number*</Label>
                     <Input {...register("registrationNumber")} placeholder="Registration Number" className="border-gray-300"/>
-                    {errors.registrationNumber && <p className="text-red-500 text-xs">{errors.registrationNumber.message}</p>}
                   </div>
 
                   {/* Registration Date */}
@@ -435,19 +433,27 @@ export default function AddCompanyCustomerPage() {
                         </Popover>
                       )}
                     />
-                    {errors.registrationDate && <p className="text-red-500 text-xs">{errors.registrationDate.message}</p>}
                   </div>
 
                   {/* Number of Employees */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Number of Employees*</Label>
-                    <Input 
-                      {...register("numberOfEmployees", { valueAsNumber: true })} 
-                      type="number" 
-                      placeholder="Number of Employees" 
-                      className="border-gray-300"
+                    <Controller
+                      name="numberOfEmployees"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          type="number"
+                          placeholder="Number of Employees"
+                          className="border-gray-300"
+                          // Ensure value is a number, converting from string
+                          onChange={(e) => field.onChange(e.target.value === "" ? 0 : +e.target.value)}
+                          // Set value to empty string when it's 0 to avoid showing 0 by default
+                          value={field.value === 0 ? "" : field.value}
+                        />
+                      )}
                     />
-                    {errors.numberOfEmployees && <p className="text-red-500 text-xs">{errors.numberOfEmployees.message}</p>}
                   </div>
                 </div>
               </div>
@@ -464,28 +470,24 @@ export default function AddCompanyCustomerPage() {
                   <div className="space-y-2">
                     <Label className="text-gray-700">Contact Person Name*</Label>
                     <Input {...register("contactPersonName")} placeholder="Full Name" className="border-gray-300"/>
-                    {errors.contactPersonName && <p className="text-red-500 text-xs">{errors.contactPersonName.message}</p>}
                   </div>
 
                   {/* Contact Person Position */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Contact Person Position*</Label>
                     <Input {...register("contactPersonPosition")} placeholder="Position" className="border-gray-300"/>
-                    {errors.contactPersonPosition && <p className="text-red-500 text-xs">{errors.contactPersonPosition.message}</p>}
                   </div>
 
                   {/* Phone */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Phone Number*</Label>
                     <Input {...register("phone")} placeholder="Phone Number" className="border-gray-300"/>
-                    {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
                   </div>
 
                   {/* Email */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Email*</Label>
                     <Input {...register("email")} type="email" placeholder="Email" className="border-gray-300"/>
-                    {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
                   </div>
                 </div>
               </div>
@@ -502,47 +504,49 @@ export default function AddCompanyCustomerPage() {
                   <div className="space-y-2">
                     <Label className="text-gray-700">Region*</Label>
                     <Input {...register("region")} placeholder="Region" className="border-gray-300"/>
-                    {errors.region && <p className="text-red-500 text-xs">{errors.region.message}</p>}
                   </div>
 
                   {/* Zone */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Zone*</Label>
                     <Input {...register("zone")} placeholder="Zone" className="border-gray-300"/>
-                    {errors.zone && <p className="text-red-500 text-xs">{errors.zone.message}</p>}
                   </div>
 
                   {/* City */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">City*</Label>
                     <Input {...register("city")} placeholder="City" className="border-gray-300"/>
-                    {errors.city && <p className="text-red-500 text-xs">{errors.city.message}</p>}
                   </div>
 
                   {/* Subcity */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Subcity*</Label>
                     <Input {...register("subcity")} placeholder="Subcity" className="border-gray-300"/>
-                    {errors.subcity && <p className="text-red-500 text-xs">{errors.subcity.message}</p>}
                   </div>
 
                   {/* Woreda */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Woreda*</Label>
                     <Input {...register("woreda")} placeholder="Woreda" className="border-gray-300"/>
-                    {errors.woreda && <p className="text-red-500 text-xs">{errors.woreda.message}</p>}
                   </div>
 
                   {/* Annual Revenue */}
                   <div className="space-y-2">
                     <Label className="text-gray-700">Annual Revenue (ETB)*</Label>
-                    <Input 
-                      {...register("annualRevenue", { valueAsNumber: true })} 
-                      type="number" 
-                      placeholder="Annual Revenue" 
-                      className="border-gray-300"
+                    <Controller
+                      name="annualRevenue"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          type="number"
+                          placeholder="Annual Revenue"
+                          className="border-gray-300"
+                          onChange={(e) => field.onChange(e.target.value === "" ? 0 : +e.target.value)}
+                          value={field.value === 0 ? "" : field.value}
+                        />
+                      )}
                     />
-                    {errors.annualRevenue && <p className="text-red-500 text-xs">{errors.annualRevenue.message}</p>}
                   </div>
                 </div>
               </div>
@@ -561,7 +565,7 @@ export default function AddCompanyCustomerPage() {
                       onRemoveFile={() => handleRemoveFile('business-license')}
                       label="Upload Business License"
                       id="business-license-upload"
-                      error={errors.businessLicenseUrl?.message}
+                      // No Zod errors here
                     />
                   </div>
 
@@ -574,7 +578,7 @@ export default function AddCompanyCustomerPage() {
                       onRemoveFile={() => handleRemoveFile('agreementForm')}
                       label="Upload Agreement Form"
                       id="agreementForm-upload"
-                      error={errors.agreementFormUrl?.message}
+                      // No Zod errors here
                     />
                   </div>
                 </div>
@@ -601,7 +605,6 @@ export default function AddCompanyCustomerPage() {
                     </Select>
                   )}
                 />
-                {errors.accountType && <p className="text-red-500 text-xs">{errors.accountType.message}</p>}
               </div>
 
               {/* Submit Buttons */}
