@@ -10,11 +10,8 @@ const requestSchema = z.object({
   email: z.string().email(),
   role: z.enum([
     "ADMIN",
-    "RELATIONSHIP_MANAGER",
-    "CREDIT_ANALYST",
-    "SUPERVISOR",
-    "COMMITTE_MEMBER",
-    "APPROVAL_COMMITTE"
+    "USER",
+    
   ]),
 });
 
