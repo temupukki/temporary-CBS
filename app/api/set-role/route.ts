@@ -10,14 +10,30 @@ const requestSchema = z.object({
   email: z.string().email(),
   role: z.enum([
     "ADMIN",
-    "USER",
-    
+    "RELATIONSHIP_MANAGER",
+    "CREDIT_ANALYST",
+    "SUPERVISOR",
+    "COMMITTE_MEMBER",
+    "APPROVAL_COMMITTE"
   ]),
 });
 
 export async function POST(request: NextRequest) {
   try {
-  
+    // Authenticate and authorize the user
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    // Check if the user is an ADMIN
+    if (!session?.user?.role || session.user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized: You must be an ADMIN to perform this action" },
+        { status: 403 }
+      );
+    }
+    
+    // Parse and validate the request body
     const body = await request.json();
     const { email, role } = requestSchema.parse(body);
 
