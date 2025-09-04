@@ -320,6 +320,7 @@ export default function AddCompanyCustomerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 sm:p-6 lg:p-8">
+       <title>Company | CBS</title>
       <div className="max-w-4xl mx-auto">
         <Card className="shadow-lg border-0">
           <CardHeader className="text-center space-y-1 pb-4">

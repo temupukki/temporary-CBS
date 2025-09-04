@@ -53,7 +53,7 @@ const ROLE_LINKS: Record<string, NavLink[]> = {
   USER: [
     { 
       href: "/dashboard/personal", 
-      label: "Register Personal Account", 
+      label: "Register Individual Account", 
       icon: Users 
     },
     { 

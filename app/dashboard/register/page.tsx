@@ -181,7 +181,7 @@ export default function BankSignupPage() {
             Register Employee
           </CardTitle>
           <CardDescription className="text-blue-500">
-            Onboard to the Loan Origination System
+            Onboard to the Temporary CBS 
           </CardDescription>
         </CardHeader>
 
