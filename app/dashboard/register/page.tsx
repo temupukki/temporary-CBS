@@ -277,16 +277,7 @@ export default function BankSignupPage() {
               )}
             </div>
             
-            <div className="bg-blue-50 p-3 rounded-md">
-              <p className="text-sm text-blue-700">
-                Default password will be automatically generated as:{" "}
-                <strong>lastname@12341234</strong>
-              </p>
-              <p className="text-sm text-blue-700 mt-1">
-                Email will be generated as:{" "}
-                <strong>firstname.lastname@dashenbank.com</strong>
-              </p>
-            </div>
+       
 
             <Button
               type="submit"
