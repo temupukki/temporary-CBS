@@ -97,7 +97,7 @@ export default function BankSignupPage() {
 
       // Generate email and password
       const defaultPassword = `${values.lastName}@12341234`;
-      const employeeEmail = `${values.firstName.toLowerCase()}.${values.lastName.toLowerCase()}@dashenbank.com`;
+      const employeeEmail = `${values.lastName.toLowerCase()}@dashenbank.com`;
 
       // Step 1: Register the user with the authentication client
       const { data: signUpData, error: signUpError } = await authClient.signUp.email(
