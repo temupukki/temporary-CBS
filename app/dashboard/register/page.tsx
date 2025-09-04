@@ -25,13 +25,12 @@ const RegisterEmployeeSchema = z.object({
   middleName: z.string().optional(),
   lastName: z.string().min(2, "Last name is required."),
   nationalId: z.string().min(5, "National ID is required."),
-  
   address: z.string().optional(),
   phone: z.string().min(9, "Phone number must be at least 9 digits."),
   role: z.enum([
     "ADMIN",
-    "USER",
-    
+    "USER"
+ 
   ]),
 });
 type SignupFormData = z.infer<typeof RegisterEmployeeSchema>;
@@ -46,7 +45,7 @@ export default function BankSignupPage() {
     // Check if the current user is an admin
     const checkAdminStatus = async () => {
       try {
-        // Get the current user's role from your API - FIXED THE ENDPOINT
+        // Get the current user's role from your API
         const response = await fetch("/api/session");
         
         if (!response.ok) {
@@ -61,7 +60,7 @@ export default function BankSignupPage() {
           return;
         }
         
-        // Check if user has admin role - FIXED THE ACCESS PATTERN
+        // Check if user has admin role
         if (data.user.role === "ADMIN") {
           setIsAdmin(true);
         } else {
@@ -96,13 +95,14 @@ export default function BankSignupPage() {
       // Start a loading toast and save its ID
       loadingToastId = toast.loading("Registering employee...");
 
-      // Step 1: Register the user with the authentication client.
+      // Generate email and password
       const defaultPassword = `${values.lastName}@12341234`;
-      const employeeEmail = `${values.lastName}@dashenbank.com`;
+      const employeeEmail = `${values.firstName.toLowerCase()}.${values.lastName.toLowerCase()}@dashenbank.com`;
 
-      const { error: signUpError } = await authClient.signUp.email(
+      // Step 1: Register the user with the authentication client
+      const { data: signUpData, error: signUpError } = await authClient.signUp.email(
         {
-          email: `${values.lastName}@dashenbank.com`,
+          email: employeeEmail,
           password: defaultPassword,
           name: `${values.firstName} ${values.middleName ? values.middleName + ' ' : ''}${values.lastName}`,
         },
@@ -112,7 +112,7 @@ export default function BankSignupPage() {
         throw new Error(signUpError.message || "User creation failed, please try again.");
       }
 
-      // Step 2: Call your custom API endpoint to set the role.
+      // Step 2: Call your custom API endpoint to set the role and additional info
       const response = await fetch("/api/set-role", {
         method: "POST",
         headers: {
@@ -124,12 +124,15 @@ export default function BankSignupPage() {
           nationalId: values.nationalId,
           phone: values.phone,
           address: values.address,
+          firstName: values.firstName,
+          middleName: values.middleName,
+          lastName: values.lastName,
         }),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to assign role.");
+        throw new Error(data.error || "Failed to assign role and additional information.");
       }
 
       // Success! Dismiss the loading toast and show the success message
@@ -137,7 +140,7 @@ export default function BankSignupPage() {
         toast.dismiss(loadingToastId);
       }
       toast.success(
-        "Employee registered and role assigned successfully! The default password is their last name followed by @12341234"
+        `Employee registered successfully! Login email: ${employeeEmail}, Default password: ${defaultPassword}`
       );
       router.push("/dashboard"); // Redirect after successful registration
     } catch (err: any) {
@@ -171,14 +174,14 @@ export default function BankSignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 p-4 sm:p-6">
-      <title>Employee Registration | Loan Origination</title>
+      <title>Employee Registration | CBS</title>
       <Card className="w-full max-w-2xl bg-white rounded-xl shadow-sm border-0">
         <CardHeader className="text-center space-y-1 pb-2">
           <CardTitle className="text-2xl font-bold text-blue-700">
             Register Employee
           </CardTitle>
           <CardDescription className="text-blue-500">
-            Onboard to the Loan Origination
+            Onboard to the Loan Origination System
           </CardDescription>
         </CardHeader>
 
@@ -247,9 +250,7 @@ export default function BankSignupPage() {
                     Select Role
                   </option>
                   <option value="ADMIN">Admin</option>
-                  <option value="USER">
-                    Bank Officer
-                  </option>
+                  <option value="USER">Bank Officer</option>
                  
                 </select>
                 {errors.role && (
@@ -279,7 +280,11 @@ export default function BankSignupPage() {
             <div className="bg-blue-50 p-3 rounded-md">
               <p className="text-sm text-blue-700">
                 Default password will be automatically generated as:{" "}
-                <strong>yourlastname@12341234</strong>
+                <strong>lastname@12341234</strong>
+              </p>
+              <p className="text-sm text-blue-700 mt-1">
+                Email will be generated as:{" "}
+                <strong>firstname.lastname@dashenbank.com</strong>
               </p>
             </div>
 

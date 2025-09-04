@@ -252,7 +252,7 @@ export default function UsersPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
-      <title>Manage Employee | Loan Origination</title>
+      <title>Manage Employee | CBS</title>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">User Management</h1>
         <p className="text-gray-600 mt-2">Manage user roles and permissions</p>
