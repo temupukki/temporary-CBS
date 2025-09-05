@@ -113,7 +113,7 @@ export default function BankSignin() {
           <img src="/dashen logo.png" alt="dashen bank logo" className="flex flex-col justify-center items-center ml-7" />
           </CardTitle>
           <CardDescription className="text-blue-900 text-base sm:text-lg font-bold mt-8">
-             Welcome to Dashen Bank Loan Orgination
+             Welcome to Dashen Bank Temporary CBS
           </CardDescription>
         </CardHeader>
 

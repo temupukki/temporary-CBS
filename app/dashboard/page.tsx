@@ -112,9 +112,6 @@ export default function Dashboard() {
     getSession();
   }, [router]);
 
-  
-  
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -252,9 +249,7 @@ export default function Dashboard() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Temporary CBS
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900">Temporary CBS</h1>
             <Badge variant="outline" className="flex items-center gap-1">
               <Shield className="h-3 w-3" />
               {session.user.role
@@ -265,7 +260,6 @@ export default function Dashboard() {
           </div>
           <p className="text-gray-600 mt-1">Manage and review applications</p>
         </div>
-     
       </div>
 
       {session.user.role === "ADMIN" && (
@@ -276,7 +270,7 @@ export default function Dashboard() {
               <Card className="border-2 border-blue-300 hover:border-blue-500 transition-colors">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    User Management
+                    Employee Management
                   </CardTitle>
                   <svg
                     className="h-5 w-5 text-blue-500"
@@ -294,10 +288,10 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-blue-600">
-                    Manage Users
+                    Manage Employee
                   </div>
                   <p className="text-xs text-gray-600 mt-2">
-                    Create, edit, and manage system users
+                    Create, edit, and manage system employee
                   </p>
                   <div className="flex items-center mt-3">
                     <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
@@ -313,7 +307,7 @@ export default function Dashboard() {
               <Card className="border-2 border-green-300 hover:border-green-500 transition-colors">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    User Registration
+                    Employee Registration
                   </CardTitle>
                   <svg
                     className="h-5 w-5 text-green-500"
@@ -331,10 +325,10 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600">
-                    Register Users
+                    Register Employee
                   </div>
                   <p className="text-xs text-gray-600 mt-2">
-                    Add new users to the system
+                    Add new emplyees to the system
                   </p>
                   <div className="flex items-center mt-3">
                     <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
@@ -361,9 +355,6 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-              <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200 px-3 py-1">
-                Updated Today
-              </Badge>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -537,235 +528,316 @@ export default function Dashboard() {
                 </ul>
               </div>
             </div>
-
-     
           </div>
         </>
       )}
       {session.user.role === "USER" && (
         <>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              <CardTitle>All Applications</CardTitle>
-              <div className="flex items-center gap-2">
-                <>
-                  <Filter className="h-4 w-4 text-gray-500" />
-                  <select
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                    className="border rounded-md p-2 text-sm"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+            {/* User Management Card */}
+            <Link href="/dashboard/manage">
+              <Card className="border-2 border-blue-300 hover:border-blue-500 transition-colors">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Account Management
+                  </CardTitle>
+                  <svg
+                    className="h-5 w-5 text-blue-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    <option value="all">All Applications</option>
-                    <option value="pending">Pending Review</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-blue-600">
+                    Manage Accounts
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Create, edit, and manage system accounts
+                  </p>
+                  <div className="flex items-center mt-3">
+                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                      Bank Officer only
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-                <span className="text-sm font-normal text-gray-500">
-                  {filteredCustomers.length} application(s)
-                </span>
-              </div>
-            </CardHeader>
-         
-        
-          </Card>
+            {/* User Registration Card */}
+            <Link href="/dashboard/personal">
+              <Card className="border-2 border-green-300 hover:border-green-500 transition-colors">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Account Registration
+                  </CardTitle>
+                  <svg
+                    className="h-5 w-5 text-green-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                    />
+                  </svg>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">
+                    Register Indiviual Account
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Add new Individual to the system
+                  </p>
+                  <div className="flex items-center mt-3">
+                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                      Bank Officer Only
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/dashboard/company">
+              <Card className="border-2 border-green-300 hover:border-green-500 transition-colors">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Account Registration
+                  </CardTitle>
+                  <svg
+                    className="h-5 w-5 text-green-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                    />
+                  </svg>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">
+                    Register company Account
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Add new company to the system
+                  </p>
+                  <div className="flex items-center mt-3">
+                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                      Bank Officer Only
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
-                <div className="bg-gradient-to-r from-orange-500 to-amber-600 p-3 rounded-xl mr-4 shadow-md">
-                  <Handshake className="h-6 w-6 text-white" />
+                <div className="bg-gradient-to-r from-gray-700 to-gray-900 p-3 rounded-xl mr-4 shadow-md">
+                  <UserCog className="h-6 w-6 text-gray-300" />
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-gray-800">
-                    Relationship Manager Guidelines
+                    Branch Bank Officer Guidelines
                   </h3>
                   <p className="text-gray-600">
-                    Client engagement and application submission best practices
+                    Customer service, financial transactions, and regulatory
+                    compliance
                   </p>
                 </div>
               </div>
-              <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-200 px-3 py-1">
-                Updated Today
-              </Badge>
             </div>
 
+            {/* Customer Service & Account Management */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="bg-orange-50 p-5 rounded-xl border border-orange-100">
+              <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
                 <div className="flex items-center mb-3">
-                  <div className="bg-orange-100 p-2 rounded-lg mr-3">
-                    <UserPlus className="h-5 w-5 text-orange-600" />
+                  <div className="bg-gray-100 p-2 rounded-lg mr-3">
+                    <UserCog className="h-5 w-5 text-gray-600" />
                   </div>
                   <h4 className="font-semibold text-gray-800">
-                    Client Onboarding & Applications
+                    Customer Service & Account Management
                   </h4>
                 </div>
                 <ul className="space-y-2 text-sm text-gray-700">
                   <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-orange-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-orange-800">
+                    <div className="h-5 w-5 rounded-full bg-gray-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-gray-800">1</span>
+                    </div>
+                    <span>
+                      Open, update, and close customer accounts with proper
+                      documentation and verification.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="h-5 w-5 rounded-full bg-gray-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-gray-800">2</span>
+                    </div>
+                    <span>
+                      Handle deposits, withdrawals, fund transfers, and loan
+                      applications accurately.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="h-5 w-5 rounded-full bg-gray-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-gray-800">3</span>
+                    </div>
+                    <span>
+                      Provide excellent customer service and resolve client
+                      inquiries promptly.
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Cash Handling & Transactions */}
+              <div className="bg-blue-50 p-5 rounded-xl border border-blue-100">
+                <div className="flex items-center mb-3">
+                  <div className="bg-blue-100 p-2 rounded-lg mr-3">
+                    <Server className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <h4 className="font-semibold text-gray-800">
+                    Cash Handling & Transactions
+                  </h4>
+                </div>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start">
+                    <div className="h-5 w-5 rounded-full bg-blue-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-blue-800">1</span>
+                    </div>
+                    <span>
+                      Accurately count, receive, and disburse cash while
+                      maintaining records.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="h-5 w-5 rounded-full bg-blue-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-blue-800">2</span>
+                    </div>
+                    <span>
+                      Ensure daily cash balancing and promptly report
+                      discrepancies.
+                    </span>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="h-5 w-5 rounded-full bg-blue-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-blue-800">3</span>
+                    </div>
+                    <span>
+                      Follow strict cash handling procedures to minimize errors
+                      and fraud.
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Compliance & Security */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-green-50 p-5 rounded-xl border border-green-100">
+                <div className="flex items-center mb-3">
+                  <h4 className="font-semibold text-gray-800">
+                    Compliance & Security
+                  </h4>
+                </div>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start">
+                    <div className="h-5 w-5 rounded-full bg-green-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-green-800">
                         1
                       </span>
                     </div>
                     <span>
-                      Ensure all client applications are complete and accurately
-                      filled out.
+                      Verify customer identity (KYC) and follow anti-money
+                      laundering (AML) policies.
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-orange-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-orange-800">
+                    <div className="h-5 w-5 rounded-full bg-green-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-green-800">
                         2
                       </span>
                     </div>
                     <span>
-                      Verify that all required supporting documents are attached
-                      before submission.
+                      Report suspicious transactions immediately to compliance
+                      officers.
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-orange-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-orange-800">
+                    <div className="h-5 w-5 rounded-full bg-green-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-green-800">
                         3
                       </span>
                     </div>
                     <span>
-                      Educate clients on the loan process and set realistic
-                      expectations for timelines.
+                      Ensure branch operations comply with banking regulations
+                      and internal policies.
                     </span>
                   </li>
                 </ul>
               </div>
 
-              <div className="bg-teal-50 p-5 rounded-xl border border-teal-100">
+              {/* Reporting & Performance */}
+              <div className="bg-purple-50 p-5 rounded-xl border border-purple-100">
                 <div className="flex items-center mb-3">
-                  <div className="bg-teal-100 p-2 rounded-lg mr-3">
-                    <MessageSquare className="h-5 w-5 text-teal-600" />
+                  <div className="bg-purple-100 p-2 rounded-lg mr-3">
+                    <BarChart2 className="h-5 w-5 text-purple-600" />
                   </div>
                   <h4 className="font-semibold text-gray-800">
-                    Communication & Follow-up
+                    Reporting & Performance
                   </h4>
                 </div>
                 <ul className="space-y-2 text-sm text-gray-700">
                   <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-teal-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-teal-800">1</span>
-                    </div>
-                    <span>
-                      Provide timely updates to clients on their application
-                      status.
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-teal-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-teal-800">2</span>
-                    </div>
-                    <span>
-                      Respond to client inquiries within **2 business hours**.
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-teal-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-teal-800">3</span>
-                    </div>
-                    <span>
-                      Maintain a professional and empathetic tone in all client
-                      interactions.
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="bg-cyan-50 p-5 rounded-xl border border-cyan-100">
-                <div className="flex items-center mb-3">
-                  <div className="bg-cyan-100 p-2 rounded-lg mr-3">
-                    <TrendingUp className="h-5 w-5 text-cyan-600" />
-                  </div>
-                  <h4 className="font-semibold text-gray-800">
-                    Sales & Business Development
-                  </h4>
-                </div>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-cyan-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-cyan-800">1</span>
-                    </div>
-                    <span>
-                      Actively seek new leads and business opportunities to grow
-                      the loan portfolio.
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-cyan-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-cyan-800">2</span>
-                    </div>
-                    <span>
-                      Cross-sell additional products and services to existing
-                      clients.
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-cyan-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-cyan-800">3</span>
-                    </div>
-                    <span>
-                      Maintain a target of **5 new client meetings** per week.
-                    </span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-indigo-50 p-5 rounded-xl border border-indigo-100">
-                <div className="flex items-center mb-3">
-                  <div className="bg-indigo-100 p-2 rounded-lg mr-3">
-                    <Network className="h-5 w-5 text-indigo-600" />
-                  </div>
-                  <h4 className="font-semibold text-gray-800">
-                    Internal Collaboration
-                  </h4>
-                </div>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-indigo-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-indigo-800">
+                    <div className="h-5 w-5 rounded-full bg-purple-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-purple-800">
                         1
                       </span>
                     </div>
                     <span>
-                      Serve as the primary liaison between the client and the
-                      credit analysis team.
+                      Maintain accurate records of daily transactions and branch
+                      activities.
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-indigo-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-indigo-800">
+                    <div className="h-5 w-5 rounded-full bg-purple-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-purple-800">
                         2
                       </span>
                     </div>
                     <span>
-                      Clearly communicate any client concerns or specific needs
-                      to the team.
+                      Prepare periodic performance reports and submit them to
+                      management.
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-indigo-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                      <span className="text-xs font-bold text-indigo-800">
+                    <div className="h-5 w-5 rounded-full bg-purple-200 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                      <span className="text-xs font-bold text-purple-800">
                         3
                       </span>
                     </div>
                     <span>
-                      Proactively coordinate with analysts to gather updates on
-                      application progress.
+                      Assist in meeting branch targets for customer satisfaction
+                      and financial growth.
                     </span>
                   </li>
                 </ul>
               </div>
             </div>
-          </div>
-          <div className="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} Dashen Bank. All rights reserved.
           </div>
         </>
       )}
