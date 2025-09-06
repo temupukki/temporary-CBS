@@ -872,6 +872,9 @@ export default function Dashboard() {
           </Card>
         </div>
       )}
+       <div className="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm">
+        &copy; {new Date().getFullYear()} Dashen Bank. All rights reserved.
+      </div>
     </div>
   );
 }

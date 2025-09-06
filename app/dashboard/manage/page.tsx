@@ -257,8 +257,8 @@ export default function CustomersPage() {
             onClick={() =>
               (window.location.href =
                 customerType === "personal"
-                  ? "/add-customer"
-                  : "/add-company-customer")
+                  ? "/dashboard/personal"
+                  : "/dashboard/company")
             }
           >
             <svg
