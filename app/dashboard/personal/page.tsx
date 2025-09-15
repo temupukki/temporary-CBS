@@ -785,6 +785,7 @@ export default function AddBankCustomerPage() {
                       type="number"
                       placeholder="Monthly Income"
                       className="border-gray-300"
+                      min={0} // ✅ prevents going below 0 when using arrows
                     />
                     {formErrors.monthlyIncome && (
                       <p className="text-red-500 text-xs">
