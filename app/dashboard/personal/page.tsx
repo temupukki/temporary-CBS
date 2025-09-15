@@ -357,8 +357,7 @@ export default function AddBankCustomerPage() {
     if (!data.city) errors.city = "City is required";
     if (!data.subcity) errors.subcity = "Subcity is required";
     if (!data.woreda) errors.woreda = "Woreda is required";
-    if (!data.monthlyIncome)
-      errors.monthlyIncome = "Monthly income is required";
+
     if (data.monthlyIncome && Number(data.monthlyIncome) < 100)
       errors.monthlyIncome = "Monthly income must be at least 100";
     if (!data.accountType) errors.accountType = "Account type is required";
@@ -780,7 +779,7 @@ export default function AddBankCustomerPage() {
 
                   {/* Monthly Income */}
                   <div className="space-y-2">
-                    <Label className="text-gray-700">Monthly Income*</Label>
+                    <Label className="text-gray-700">Monthly Income</Label>
                     <Input
                       {...register("monthlyIncome")}
                       type="number"
