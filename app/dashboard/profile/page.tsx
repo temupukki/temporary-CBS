@@ -17,9 +17,6 @@ import {
   Mail,
   Shield,
   LogOut,
-  Edit3,
-  CheckCircle,
-  Calendar,
   UserCheck,
 } from "lucide-react";
 import Link from "next/link";
@@ -35,13 +32,6 @@ export default async function ProfilePage() {
 
   // Function to capitalize the first letter of a string
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-
-  // Mock user metadata (replace with actual data from your auth system)
-  const userMetadata = {
-    memberSince: "2023",
-    lastLogin: "2 hours ago",
-    accountStatus: "verified",
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 lg:p-8">
@@ -60,7 +50,7 @@ export default async function ProfilePage() {
           <Card className="lg:col-span-2 shadow-xl border-0 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white">
               <CardHeader className="p-0">
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-6 flex-wrap sm:flex-nowrap">
                   <div className="relative">
                     <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-4xl font-bold text-white backdrop-blur-sm">
                       {user.name
@@ -84,7 +74,7 @@ export default async function ProfilePage() {
             </div>
 
             <CardContent className="p-8 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                     <User className="h-5 w-5" />
@@ -105,7 +95,7 @@ export default async function ProfilePage() {
                   </p>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-1 sm:col-span-2">
                   <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                     <Shield className="h-5 w-5" />
                     <span className="text-sm font-medium">Account Role</span>
@@ -114,69 +104,31 @@ export default async function ProfilePage() {
                     {capitalize(user.role)}
                   </Badge>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                    <CheckCircle className="h-5 w-5" />
-                    <span className="text-sm font-medium">Status</span>
-                  </div>
-                  <Badge className="px-3 py-1 text-sm bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800">
-                    {userMetadata.accountStatus === "verified"
-                      ? "Verified"
-                      : "Active"}
-                  </Badge>
-                </div>
               </div>
 
               <Separator className="my-6 bg-gray-200 dark:bg-gray-700" />
 
-              <div className="flex flex-col sm:flex-row gap-4">
-            
-
-                <form
-                  className="flex-1"
-                  action={async () => {
-                    "use server";
-                    await auth.api.signOut({ headers: await headers() });
-                    redirect("/");
-                  }}
+              <form
+                className="flex-1"
+                action={async () => {
+                  "use server";
+                  await auth.api.signOut({ headers: await headers() });
+                  redirect("/");
+                }}
+              >
+                <Button
+                  variant="outline"
+                  className="w-full gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300 transition-all duration-300"
                 >
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300 transition-all duration-300"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign Out
-                  </Button>
-                </form>
-              </div>
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </Button>
+              </form>
             </CardContent>
           </Card>
 
-          {/* Sidebar Cards */}
+          {/* Sidebar Card */}
           <div className="space-y-6">
-            {/* Account Status Card */}
-            <Card className="shadow-lg border-0 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-800 dark:to-gray-700">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full">
-                    <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
-                    Account Status
-                  </h3>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Your account is fully verified and in good standing.
-                </p>
-                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full w-full"></div>
-                </div>
-              </CardContent>
-            </Card>
-
-      
-
             {/* Security Card */}
             <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-700">
               <CardContent className="p-6">
@@ -188,10 +140,11 @@ export default async function ProfilePage() {
                     Security
                   </h3>
                 </div>
-              <Link href="/dashboard/profile/change">
-                <Button variant="outline" className="w-full">
-                  Change Password
-                </Button></Link>
+                <Link href="/dashboard/profile/change">
+                  <Button variant="outline" className="w-full">
+                    Change Password
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
